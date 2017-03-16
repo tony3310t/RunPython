@@ -6,7 +6,7 @@ import csv
 import operator
 from yahoo_finance import Share
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import clsPy
 
@@ -18,8 +18,9 @@ if __name__ == '__main__':
 
 	#funcName = 'Create_StockInfo'
 	#funcName = 'Create_RonChe'
-	#funcName = 'Parser_Faren'
-	funcName = 'Parser_StockList'
+	#funcName = 'Parser_iTrust'
+	funcName = 'Parser_RonChe'
+	#funcName = 'Parser_StockList'
 	#funcName = 'Get_RonChe_Info'
 	#funcName = 'find_Surf'
 	#stockSymbol = '3576.TW'
@@ -458,8 +459,9 @@ if __name__ == '__main__':
 		
 		sorted_x = sorted(dayAdd.items(), key=operator.itemgetter(1))						
 		print(sorted_x)	
-		
-	if funcName == 'Parser_Faren':
+	#投信	
+	if funcName == 'Parser_iTrust':
+		start = time.time()
 		appDataPath = os.getenv('APPDATA')
 		if os.path.exists(appDataPath + '\StockData') == False:
 			os.makedirs(appDataPath + '\StockData')
@@ -467,7 +469,7 @@ if __name__ == '__main__':
 		obj = clsPy.Stock()
 		#list = []
 		dayAdd = {}
-		with open('E:\OTC.csv', newline='') as f:		
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
 			reader = csv.reader(f)
 			i = 0
 			for row in reader:
@@ -512,12 +514,12 @@ if __name__ == '__main__':
 						liDate.append(data)
 						jsonTmp = jsonTmp + '"iTrustDate":"' + data + '", '
 						debugStatus = 'Date:' + str(data)
-
+						'''
 						if datetime.strptime(data, "%Y/%m/%d") < datetime.strptime('2017/03/01', "%Y/%m/%d"):
 							if iStructCount > 0:
 								print(str(number) + ':' + str(iStructCount) + ' ' + str(iStructCount/int(Total)*100))
 							break
-						
+						'''
 						indexEnd = strTmp.find('</td>')
 						strTmp = strTmp[indexEnd+5:]
 						data = obj.getData(strTmp)
@@ -562,7 +564,7 @@ if __name__ == '__main__':
 				except:
 					check = False
 					print('Error:' + str(number) + '_' + debugStatus)
-				'''
+				
 				if check:
 					jsonOutput = jsonOutput + ']'
 
@@ -580,11 +582,14 @@ if __name__ == '__main__':
 					f.close()
 					print(number)
 				else:
-					f = open(appDataPath + '\StockData\\' + str(number) + '_log.txt', 'w', encoding = 'UTF-8')
+					f = open(appDataPath + '\StockData\\' + str(number) + 'iTrust_log.txt', 'w', encoding = 'UTF-8')
 					f.write('Error:' + str(number) + '_' + debugStatus)
 					f.close()
-				'''
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)		
 
+	#股票清單
 	if funcName == 'Parser_StockList':
 		appDataPath = os.getenv('APPDATA')
 		if os.path.exists(appDataPath + '\StockData') == False:
@@ -636,6 +641,200 @@ if __name__ == '__main__':
 			f = open(appDataPath + '\\' + 'stockList_log.txt', 'w', encoding = 'UTF-8')
 			f.write(log)
 			f.close()
+
+	#融資融券
+	if funcName == 'Parser_RonChe':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+
+					currentDate = datetime.today()
+					endDate = currentDate - timedelta(days=90)
+					response = requests.get("http://jsjustweb.jihsun.com.tw/z/zc/zcn/zcn.djhtm?a="+number+"&d="+str(currentDate.year) + '-' +str(currentDate.month) + '-' +str(currentDate.day) +"&c="+str(endDate.year) + '-' +str(endDate.month) + '-' +str(endDate.day))
+					index = response.text.find('nowrap>相抵</TD>')
+					strTmp = response.text[index:]
+		
+					code = 1
+					tmp = ''
+					liDate = []
+					count = 0
+					iStructCount = 0
+					Total = 0
+					
+					while code == 1:
+						jsonTmp = '{'
+						index = strTmp.find('class="t3n0">')
+
+						if index == -1:
+							break
+
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</TD>')
+						year = int(strTmp[0:3]) + 1911
+						data = str(year) + '/' + strTmp[4:9]
+						liDate.append(data)
+						jsonTmp = jsonTmp + '"RoncheDate":"' + str(data) + '", '
+						debugStatus = 'Date:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheBuy":"' + str(data) + '", '
+						debugStatus = 'RoncheBuy:' + str(data)
+						
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheSell":"' + str(data) + '", '
+						debugStatus = 'RoncheSell:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheReturn":"' + str(data) + '", '
+						debugStatus = 'RoncheReturn:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheUse":"' + str(data) + '", '
+						debugStatus = 'RoncheUse:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheChange":"' + str(data) + '", '
+						debugStatus = 'RoncheChange:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"RoncheTotal":"' + str(data) + '", '
+						debugStatus = 'RoncheTotal:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = float(strTmp[0:indexTD].replace('%', ''))
+						jsonTmp = jsonTmp + '"RonchePercent":"' + str(data) + '", '
+						debugStatus = 'RoncheTotal:' + str(data)
+						
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenSell":"' + str(data) + '", '
+						debugStatus = 'ChenSell:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenBuy":"' + str(data) + '", '
+						debugStatus = 'ChenBuy:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenReturn":"' + str(data) + '", '
+						debugStatus = 'ChenReturn:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenUse":"' + str(data) + '", '
+						debugStatus = 'ChenUse:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')						
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenChange":"' + str(data) + '", '
+						debugStatus = 'ChenChange:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						if strTmp[0:indexTD].strip() != '':
+							data = float(strTmp[0:indexTD].replace('%', ''))
+							jsonTmp = jsonTmp + '"ChenTotal":"' + str(data) + '", '
+						debugStatus = 'ChenTotal:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						strTmp = strTmp[index+13:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ChenCheSub":"' + str(data) + '" '
+						debugStatus = 'ChenCheSub:' + str(data)
+
+						index = strTmp.find('class="t3n1">')
+						
+						if index == -1:
+							jsonTmp = jsonTmp + '}'
+							jsonOutput = jsonOutput + jsonTmp
+							break
+						else:
+							jsonTmp = jsonTmp + '}'
+							jsonTmp = jsonTmp + ','
+							jsonOutput = jsonOutput + jsonTmp
+						
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Ronche.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					if len(liDate) > 0:
+						log = log + 'StartDate:' + liDate[0] + ',EndDate:' + liDate[len(liDate)-1] + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Ronche_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'Ronche_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)		
+
+		
 		
 	def getKtype(self,stockInfoPath):
 		blackHammerPlus=[]

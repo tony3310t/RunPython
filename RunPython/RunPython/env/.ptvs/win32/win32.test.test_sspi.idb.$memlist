@@ -1,0 +1,10 @@
+applyHandlingSkips
+testmain
+win32api
+TestSkipped
+unittest
+str2bytes
+TestSSPI
+sspi
+win32security
+sspicon

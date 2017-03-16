@@ -1,0 +1,10 @@
+load_descriptions
+os
+win32api
+scan
+verstamp
+g_patterns
+walk
+numStamped
+sys
+fnmatch

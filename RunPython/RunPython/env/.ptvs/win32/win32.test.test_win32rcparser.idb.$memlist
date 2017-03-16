@@ -1,0 +1,8 @@
+TestParser
+os
+win32rcparser
+win32con
+TestGenerated
+tempfile
+sys
+unittest

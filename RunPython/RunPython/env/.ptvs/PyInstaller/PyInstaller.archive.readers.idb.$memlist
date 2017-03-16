@@ -1,0 +1,8 @@
+CTOCReader
+struct
+NotAnArchiveError
+PYZ_TYPE_DATA
+PYZ_TYPE_MODULE
+CArchiveReader
+PYZ_TYPE_PKG
+ArchiveReader

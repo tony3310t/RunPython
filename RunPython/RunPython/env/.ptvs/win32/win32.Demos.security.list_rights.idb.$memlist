@@ -1,0 +1,15 @@
+th
+ACCESS_MODE
+sid
+policy_handle
+win32api
+win32file
+TRUSTEE_TYPE
+new_privs
+TRUSTEE_FORM
+ntsecuritycon
+ph
+ACE_FLAGS
+win32con
+win32security
+sidlist

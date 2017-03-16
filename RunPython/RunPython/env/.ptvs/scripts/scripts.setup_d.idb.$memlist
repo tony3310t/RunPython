@@ -1,0 +1,16 @@
+sys
+path
+fname
+details
+os
+shutil
+usage_and_die
+winreg
+_docopy
+_doregister
+base
+ext
+_domodule
+pythoncom
+win32api
+pywintypes

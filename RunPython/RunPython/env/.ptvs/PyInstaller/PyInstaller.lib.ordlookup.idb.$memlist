@@ -1,0 +1,5 @@
+absolute_import
+oleaut32
+ws2_32
+ords
+ordLookup

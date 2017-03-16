@@ -1,0 +1,11 @@
+GenericFrame
+win32ui
+win32api
+docview
+win32con
+demoutils
+window
+afxres
+msg
+commctrl
+test

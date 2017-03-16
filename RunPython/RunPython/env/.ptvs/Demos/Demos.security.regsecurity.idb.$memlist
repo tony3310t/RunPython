@@ -1,0 +1,12 @@
+new_privs
+sacl
+sd
+win32api
+notmpkey
+win32con
+th
+ntsecuritycon
+tmp_sid
+ph
+hkey
+win32security

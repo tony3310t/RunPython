@@ -1,0 +1,14 @@
+dns_forest_name
+domain_sid
+domain_guid
+win32api
+win32file
+policy_handle
+event_audit_info
+server_role
+domain_name
+ntsecuritycon
+sid
+dns_domain_name
+win32con
+win32security

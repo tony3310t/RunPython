@@ -1,0 +1,17 @@
+ACE_FLAGS
+TRUSTEE_FORM
+tmp_sid
+ntsecuritycon
+new_privs
+th
+ph
+policy_handle
+privs
+priv
+privlist
+ACCESS_MODE
+TRUSTEE_TYPE
+win32con
+win32api
+win32security
+win32file

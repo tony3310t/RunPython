@@ -1,0 +1,8 @@
+win32api
+win32file
+policy_handle
+event_audit_info
+ntsecuritycon
+new_audit_info
+win32con
+win32security

@@ -1,0 +1,12 @@
+linkname
+console_props
+os
+win32api
+shellcon
+pythoncom
+ipf
+ishdl
+temp_dir
+ish
+shell
+sys

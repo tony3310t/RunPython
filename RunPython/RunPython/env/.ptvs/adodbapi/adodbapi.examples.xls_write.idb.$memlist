@@ -1,0 +1,12 @@
+driver
+is64bit
+extended
+crsr
+adodbapi
+is64
+with_statement
+sql
+data
+filename
+conn
+constr

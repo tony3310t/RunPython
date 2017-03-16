@@ -1,0 +1,16 @@
+backports
+__ver_major__
+__copyright__
+__version__
+types
+__author__
+standard_library
+__title__
+__license__
+__ver_patch__
+builtins
+utils
+tests
+moves
+__ver_minor__
+__ver_sub__

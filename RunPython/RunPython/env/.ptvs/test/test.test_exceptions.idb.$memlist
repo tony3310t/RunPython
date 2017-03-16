@@ -1,0 +1,10 @@
+TestAPISimple
+win32api
+win32file
+pythoncom
+TestCOMSimple
+pywintypes
+TestBase
+winerror
+sys
+unittest

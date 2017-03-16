@@ -1,0 +1,9 @@
+operation_desc
+ProgressRoutine
+os
+win32api
+win32file
+f
+temp_dir
+fsrc
+fdst

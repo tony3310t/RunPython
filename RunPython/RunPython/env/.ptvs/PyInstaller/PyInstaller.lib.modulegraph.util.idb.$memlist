@@ -1,0 +1,16 @@
+sys
+imp_walk
+BytesIO
+imp
+warnings
+re
+os
+imp_find_module
+StringIO
+default_encoding
+absolute_import
+guess_encoding
+unicode
+_check_importer_for_path
+marshal
+cookie_re

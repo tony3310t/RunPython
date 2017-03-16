@@ -1,0 +1,6 @@
+win32api
+testSHFileOperation
+testSHNAMEMAPPINGS
+shell
+os
+shellcon

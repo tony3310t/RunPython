@@ -1,0 +1,12 @@
+t
+win32ui
+win32api
+DoJobDialogApp
+win32con
+string
+CopyToDialogApp
+dlgappcore
+DoJobAppDialog
+app
+sys
+demoutils

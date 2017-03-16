@@ -1,0 +1,14 @@
+demo
+dialog
+IDC_EDIT_TABS
+win32ui
+IDCANCEL
+win32con
+test
+IDOK
+TestDialog
+IDD_SET_TABSTOPS
+d
+IDC_PROMPT_TABS
+TestPage
+TestSheet

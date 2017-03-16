@@ -1,0 +1,8 @@
+FileOperationProgressSink
+tsf_flags
+CreateSink
+shellcon
+DesignatedWrapPolicy
+shell
+decode_flags
+pythoncom

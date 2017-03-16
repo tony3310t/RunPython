@@ -1,0 +1,6 @@
+WindowsError
+FileNotFoundError
+get_repo_revision
+exec_command
+os
+exec_command_rc

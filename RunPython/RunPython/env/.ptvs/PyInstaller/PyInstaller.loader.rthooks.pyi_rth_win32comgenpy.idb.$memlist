@@ -1,0 +1,7 @@
+os
+supportdir
+atexit
+shutil
+genpydir
+tempfile
+win32com

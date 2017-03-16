@@ -1,0 +1,5 @@
+PyInstaller
+run
+codecs
+os
+argparse

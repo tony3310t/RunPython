@@ -1,0 +1,14 @@
+dst_dir
+fname
+f
+os
+win32api
+win32file
+winerror
+bkup_fname
+tmp_dir
+ReadCallback
+dst_fname
+ctxt
+ctxtout
+WriteCallback

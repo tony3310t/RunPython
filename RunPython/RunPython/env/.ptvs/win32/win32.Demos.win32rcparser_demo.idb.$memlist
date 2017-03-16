@@ -1,0 +1,13 @@
+this_dir
+flag
+os
+win32api
+win32rcparser
+win32con
+win32gui
+flags
+DemoModal
+g_rcname
+commctrl
+sys
+DemoWindow

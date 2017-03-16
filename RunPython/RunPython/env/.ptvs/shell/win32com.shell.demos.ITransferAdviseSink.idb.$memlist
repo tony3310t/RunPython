@@ -1,0 +1,11 @@
+v
+TransferAdviseSink
+tsf_flags
+CreateSink
+shellcon
+DesignatedWrapPolicy
+TRANSFER_ADVISE_STATES
+k
+shell
+decode_flags
+pythoncom

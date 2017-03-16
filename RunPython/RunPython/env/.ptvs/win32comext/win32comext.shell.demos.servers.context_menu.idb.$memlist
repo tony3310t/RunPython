@@ -1,0 +1,9 @@
+DllRegisterServer
+ShellExtension
+DllUnregisterServer
+shellcon
+win32con
+win32gui
+shell
+register
+pythoncom

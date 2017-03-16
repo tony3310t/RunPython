@@ -1,0 +1,9 @@
+HelloApp
+win32ui
+win32con
+dialog
+window
+afxres
+HelloWindow
+app
+WinApp

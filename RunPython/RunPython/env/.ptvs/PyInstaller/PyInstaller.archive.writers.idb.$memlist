@@ -1,0 +1,17 @@
+sys
+CArchiveWriter
+ArchiveWriter
+os
+CodeType
+ZlibArchiveWriter
+PYZ_TYPE_PKG
+zlib
+BYTECODE_MAGIC
+CTOC
+get_code_object
+marshal
+struct
+PYZ_TYPE_DATA
+PYZ_TYPE_MODULE
+is_py2
+strip_paths_in_code

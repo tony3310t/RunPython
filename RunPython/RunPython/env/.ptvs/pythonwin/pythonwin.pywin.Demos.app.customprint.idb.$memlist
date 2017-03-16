@@ -1,0 +1,14 @@
+ImagePrintDialog
+PrintDemoApp
+win32ui
+win32api
+docview
+win32con
+PrintDemoTemplate
+PRINTDLGORD
+dialog
+PrintDemoView
+afxres
+IDC_PRINT_MAG_EDIT
+app
+test

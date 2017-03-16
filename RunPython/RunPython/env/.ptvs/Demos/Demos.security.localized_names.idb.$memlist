@@ -1,0 +1,16 @@
+sys
+print
+len
+SECURITY_BUILTIN_DOMAIN_RID
+DOMAIN_ALIAS_RID_ADMINS
+DOMAIN_USER_RID_ADMIN
+LookupAliasFromRid
+main
+SECURITY_NT_AUTHORITY
+NetUserModalsGet
+enumerate
+LookupUserGroupFromRid
+__name__
+range
+pywintypes
+LookupAccountSid

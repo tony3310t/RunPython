@@ -1,0 +1,11 @@
+logger
+zipfile
+os
+TOC
+get_path_to_egg
+logging
+PY_EXECUTABLE_SUFFIXES
+PY_IGNORE_EXTENSIONS
+Tree
+pkg_resources
+DependencyProcessor

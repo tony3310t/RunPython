@@ -1,0 +1,11 @@
+exe
+os
+win32api
+win32file
+win32con
+p
+win32pipe
+Process
+win32process
+win32security
+msvcrt

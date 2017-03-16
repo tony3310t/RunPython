@@ -1,0 +1,10 @@
+exec_command
+base_prefix
+os
+get_macports_prefix
+is_homebrew_env
+get_homebrew_prefix
+MachO
+fix_exe_for_code_signing
+is_macports_env
+sys

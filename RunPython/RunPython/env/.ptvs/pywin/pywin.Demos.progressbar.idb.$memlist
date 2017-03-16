@@ -1,0 +1,6 @@
+dialog
+TestDialog
+win32ui
+win32con
+demo
+MakeDlgTemplate

@@ -1,0 +1,17 @@
+old_group
+fname
+ntsecuritycon
+old_sacl
+new_sd
+win32con
+th
+win32security
+ph
+tmp_sid
+old_dacl
+my_sid
+new_privs
+win32api
+all_security_info
+sd
+win32file

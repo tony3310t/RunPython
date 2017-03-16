@@ -1,0 +1,11 @@
+GUID_DEVINTERFACE_USB_DEVICE
+win32api
+win32file
+win32con
+win32gui
+winnt
+win32gui_struct
+time
+TestDeviceNotifications
+OnDeviceChange
+sys

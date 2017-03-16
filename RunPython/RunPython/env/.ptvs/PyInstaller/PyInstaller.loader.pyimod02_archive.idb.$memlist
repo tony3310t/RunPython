@@ -1,0 +1,15 @@
+thread
+ZlibArchiveReader
+ArchiveReader
+struct
+FilePos
+zlib
+CRYPT_BLOCK_SIZE
+PYZ_TYPE_DATA
+PYZ_TYPE_MODULE
+Cipher
+ArchiveReadError
+marshal
+PYZ_TYPE_PKG
+sys
+ArchiveFile

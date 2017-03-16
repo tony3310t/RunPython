@@ -1,0 +1,15 @@
+activex
+gencache
+win32ui
+test
+MySerialControl
+win32con
+SERIAL_PORT
+SERIAL_SETTINGS
+dialog
+MakeDlgTemplate
+demoutils
+win32uiole
+serialModule
+pythoncom
+TestSerDialog

@@ -1,0 +1,15 @@
+usage
+DumpRegistry
+DemoCreateProcess
+os
+win32api
+wincerapi
+win32con
+main
+DumpRemoteFolders
+getopt
+DumpRemoteMachineStatus
+DemoCopyFile
+DumpPythonRegistry
+sys
+win32event

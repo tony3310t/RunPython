@@ -1,0 +1,12 @@
+TestDialog
+Control
+window
+win32ui
+win32api
+win32con
+TestPieDialog
+MakeDlgTemplate
+dialog
+RedBox
+RedBoxWithPie
+demo

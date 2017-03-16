@@ -1,0 +1,7 @@
+provider
+table
+adodbapi
+con
+databasename
+sys
+constr

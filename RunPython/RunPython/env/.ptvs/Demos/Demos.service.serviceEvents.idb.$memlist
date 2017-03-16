@@ -1,0 +1,9 @@
+GUID_DEVINTERFACE_USB_DEVICE
+EventDemoService
+win32service
+win32con
+win32gui
+win32serviceutil
+win32gui_struct
+servicemanager
+win32event

@@ -1,0 +1,17 @@
+ERROR_RESOURCE_TYPE_NOT_FOUND
+ERROR_RESOURCE_DATA_NOT_FOUND
+UpdateResources
+logger
+File
+ERROR_BAD_EXE_FORMAT
+UpdateResourcesFromDataFile
+logging
+UpdateResourcesFromDict
+UpdateResourcesFromResFile
+ERROR_RESOURCE_LANG_NOT_FOUND
+LOAD_LIBRARY_AS_DATAFILE
+win32api
+pywintypes
+GetResources
+_GetResources
+ERROR_RESOURCE_NAME_NOT_FOUND

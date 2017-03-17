@@ -19,7 +19,9 @@ if __name__ == '__main__':
 	#funcName = 'Create_StockInfo'
 	#funcName = 'Create_RonChe'
 	#funcName = 'Parser_iTrust'
-	funcName = 'Parser_RonChe'
+	#funcName = 'Parser_Foreign'
+	funcName = 'Parser_Dealer'
+	#funcName = 'Parser_RonChe'
 	#funcName = 'Parser_StockList'
 	#funcName = 'Get_RonChe_Info'
 	#funcName = 'find_Surf'
@@ -587,7 +589,271 @@ if __name__ == '__main__':
 					f.close()
 		end = time.time()
 		elapsed = end - start
-		print(elapsed)		
+		print(elapsed)	
+		
+	#外資	
+	if funcName == 'Parser_Foreign':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+
+					response = requests.get("http://www.cnyes.com/twstock/QFII/"+number+".htm")
+					index = response.text.find('外資進出</h3>')
+					strTmp = response.text[index:]
+		
+					code = 1
+					tmp = ''
+					liDate = []
+					count = 0
+					iStructCount = 0
+					Total = 0
+					
+					while code == 1:	
+						count = count +1
+
+						if count > 1000:
+							check = False
+							debugStatus = 'Unknown'
+							break
+
+						jsonTmp = '{'
+						indexStart = strTmp.find('<td')
+						strTmp = strTmp[indexStart:]
+						currentDate = datetime.today()
+						data = str(currentDate.year) + '/' + obj.getData(strTmp)
+						liDate.append(data)
+						jsonTmp = jsonTmp + '"ForeignDate":"' + data + '", '
+						debugStatus = 'Date:' + str(data)
+						
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"ForeignBuy":"' + data + '", '
+						debugStatus = '外資買:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"ForeignSell":"' + data + '", '
+						debugStatus = '外資賣:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"ForeignSub":"' + data + '", '
+						debugStatus = '外資買賣超:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"ForeignKeep":"' + data + '", '
+						debugStatus = '外資持有:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"ForeignRate":"' + data + '", '
+						debugStatus = '外資持有率:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						iStructCount = iStructCount + int(data)
+						jsonTmp = jsonTmp + '"ForeignQuota":"' + data + '", '
+						debugStatus = '外資尚可投資張數:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						Total = data
+						jsonTmp = jsonTmp + '"Total":"' + data + '" '
+						debugStatus = '發行張數:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+
+						key = strTmp.find('最近訪問股</a>')	
+						indexStart = strTmp.find('<td')
+
+						if key < indexStart:
+							jsonTmp = jsonTmp + '}'
+							jsonOutput = jsonOutput + jsonTmp
+							break
+						else:
+							jsonTmp = jsonTmp + '}'
+							jsonTmp = jsonTmp + ','
+							jsonOutput = jsonOutput + jsonTmp
+						
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Foreign.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					if len(liDate) > 0:
+						log = log + 'StartDate:' + liDate[0] + ',EndDate:' + liDate[len(liDate)-1] + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Foreign_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'Foreign_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)			
+
+	#自營商	
+	if funcName == 'Parser_Dealer':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+
+					response = requests.get("http://www.cnyes.com/twstock/dealer/"+number+".htm")
+					index = response.text.find('自營商進出</h3>')
+					strTmp = response.text[index:]
+		
+					code = 1
+					tmp = ''
+					liDate = []
+					count = 0
+					iStructCount = 0
+					Total = 0
+					
+					while code == 1:	
+						count = count +1
+
+						if count > 1000:
+							check = False
+							debugStatus = 'Unknown'
+							break
+
+						jsonTmp = '{'
+						indexStart = strTmp.find('<td')
+						strTmp = strTmp[indexStart:]
+						currentDate = datetime.today()
+						data = str(currentDate.year) + '/' + obj.getData(strTmp)
+						liDate.append(data)
+						jsonTmp = jsonTmp + '"DealerDate":"' + data + '", '
+						debugStatus = 'Date:' + str(data)
+						
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"DealerBuy":"' + data + '", '
+						debugStatus = '自營商買:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						jsonTmp = jsonTmp + '"DealerSell":"' + data + '", '
+						debugStatus = '自營商賣:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						iStructCount = iStructCount + int(data)
+						jsonTmp = jsonTmp + '"DealerTotal":"' + data + '", '
+						debugStatus = '投信買賣超:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						data = obj.getData(strTmp)
+						Total = data
+						jsonTmp = jsonTmp + '"DealerPublic":"' + data + '" '
+						debugStatus = '發行張數:' + str(data)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+
+						key = strTmp.find('最近訪問股</a>')	
+						indexStart = strTmp.find('<td')
+
+						if key < indexStart:
+							jsonTmp = jsonTmp + '}'
+							jsonOutput = jsonOutput + jsonTmp
+							break
+						else:
+							jsonTmp = jsonTmp + '}'
+							jsonTmp = jsonTmp + ','
+							jsonOutput = jsonOutput + jsonTmp
+						
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Dealer.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					if len(liDate) > 0:
+						log = log + 'StartDate:' + liDate[0] + ',EndDate:' + liDate[len(liDate)-1] + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Dealer_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'Dealer_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)	
 
 	#股票清單
 	if funcName == 'Parser_StockList':

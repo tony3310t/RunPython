@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['RunPython.py'],
-             pathex=['E:\\RunPython\\RunPython'],
+             pathex=['E:\\MyGit\\RunPython\\RunPython'],
              binaries=[],
              datas=[],
              hiddenimports=[],

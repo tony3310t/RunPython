@@ -20,9 +20,11 @@ if __name__ == '__main__':
 	#funcName = 'Create_RonChe'
 	#funcName = 'Parser_iTrust'
 	#funcName = 'Parser_Foreign'
-	funcName = 'Parser_Dealer'
+	#funcName = 'Parser_Dealer'
+	#funcName = 'Parser_MAandVolume'
 	#funcName = 'Parser_RonChe'
 	#funcName = 'Parser_StockList'
+	funcName = 'Parser_BasicInfo'
 	#funcName = 'Get_RonChe_Info'
 	#funcName = 'find_Surf'
 	#stockSymbol = '3576.TW'
@@ -75,7 +77,7 @@ if __name__ == '__main__':
 				print(stockList[i])
 				result = ''
 				stock = Share(stockList[i])
-				data = stock.get_historical(startDate, endDate)
+				data = stock.get_historical('2017-02-01', '2017-03-23')
 				str = '{"' + stockList[i] + '"' + ':'
 				str = str + json.dumps(data)
 				str = str + '}'
@@ -855,6 +857,435 @@ if __name__ == '__main__':
 		elapsed = end - start
 		print(elapsed)	
 
+	#股價、標準差、量	
+	if funcName == 'Parser_BasicInfo':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			dic = {}
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				StartDate = ''
+				EndDate = ''
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+					currentDate = datetime.today()
+					lastYearDay = currentDate - timedelta(days=235)
+					EndDate = str(lastYearDay.year)+'/'+str(lastYearDay.month)+'/'+str(lastYearDay.day)
+
+					response = requests.get("http://www.cnyes.com/twstock/ps_historyprice.aspx?code="+number+"&ctl00$ContentPlaceHolder1$startText="+EndDate+"&ctl00$ContentPlaceHolder1")
+					#response = requests.get("http://www.cnyes.com/twstock/ps_historyprice.aspx?code="+number+"&ctl00$ContentPlaceHolder1$startText=2017/03/23&ctl00$ContentPlaceHolder1")
+					index = response.text.find('歷史行情</span>')
+					strTmp = response.text[index:]
+
+					data = []
+
+					conti = 1
+					debugStatus = ''
+					while conti < 300:
+						conti = conti + 1
+						tmpDic = {}						
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Date'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_Date:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Open'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_Open:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['High'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_High:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Low'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_Low:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Close'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_Close:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Volume'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_Volume:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['EPS'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'bi_EPS:' + str(rowData)
+
+						data.append(tmpDic)
+
+						indexStart = strTmp.find('<td')
+						if strTmp.find('最近訪問股</a>') < indexStart:
+							break;
+
+					i=0
+					while i < len(data):
+						jsonTmp = '{'
+						jsonTmp = jsonTmp + '"Date":"' + data[i].get("Date") + '", '
+						jsonTmp = jsonTmp + '"Open":"' + data[i].get("Open") + '", '
+						jsonTmp = jsonTmp + '"Close":"' + data[i].get("Close") + '", '
+						jsonTmp = jsonTmp + '"High":"' + data[i].get("High") + '", '
+						jsonTmp = jsonTmp + '"Low":"' + data[i].get("Low") + '", '
+						jsonTmp = jsonTmp + '"EPS":"' + data[i].get("EPS") + '", '
+						jsonTmp = jsonTmp + '"Volume":"' + data[i].get("Volume") + '", '
+
+						if i != (len(data)-1):
+							jsonTmp = jsonTmp + '"UpDown":"' + str(round(((float(data[i].get("Close")) - float(data[i+1].get("Close")))/float(data[i].get("Close"))), 3)) + '", '
+						
+						debugStatus = 'Basic:'
+						count = i
+						volume5 = 0
+						MA5 = 0
+						MA20 = 0
+						MA60 = 0
+						SD20 = 0
+						debugStatus = 'BeforeCal:'
+						if count < len(data)-21:
+							#5volume
+							count = i
+							MACount=0
+							volumeCount=0
+							while count < i+5:
+								MACount = MACount + float(data[count].get("Close"))
+								volumeCount = volumeCount + int(data[count].get("Volume"))
+
+								if count == i+4:
+									MA5 = float(MACount/5)
+									volume5 = float(volumeCount/5)
+								count = count+1
+							debugStatus = 'Volume5:'
+							#20MA
+							count = i
+							MACount=0
+							while count < i+20:
+								MACount = MACount + float(data[count].get("Close"))
+								
+								if count == i+19:
+									MA20 = float(MACount/20)
+									
+								count = count+1
+							debugStatus = 'MA20:'
+							#20SD
+							count = i
+							SDCount=0
+							while count < i+20:
+								Sub = MA20 - float(data[count].get("Close"))
+								SDCount = SDCount + (Sub*Sub)
+								
+								if count == i+19:
+									SD20 = float(round((((SDCount/20)**0.5)), 3))
+									if i==0:
+										dic[number] = SD20										
+									
+								count = count+1
+							debugStatus = 'SD20:'
+							#60MA
+							'''
+							count = i
+							MACount=0
+							while count < i+60:
+								MACount = MACount + float(data[count].get("Close"))
+								
+								if count == i+59:
+									MA60 = float(MACount/60)
+									
+								count = count+1
+							debugStatus = 'MA60:'
+							'''
+								
+						jsonTmp = jsonTmp + '"Volume5":"' + str(round(volume5,3)) + '", '
+						jsonTmp = jsonTmp + '"MA5":"' + str(round(MA5,3)) + '", '
+						jsonTmp = jsonTmp + '"MA20":"' + str(round(MA20,3)) + '", '
+						jsonTmp = jsonTmp + '"MA60":"' + str(round(MA60,3)) + '", '
+						jsonTmp = jsonTmp + '"SD20":"' + str(round(SD20,3)) + '"}'
+
+						if i != (len(data)-1):
+							jsonTmp = jsonTmp + ','
+							
+						jsonOutput = jsonOutput + jsonTmp
+						i = i+1
+											
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					log = log + 'StartDate:' + StartDate + ',EndDate:' + EndDate + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'BasicInfo_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)
+		sorted(dic.items(), key=lambda x:x[1])
+		f = open('E:\\tmp.txt', 'w', encoding = 'UTF-8')	
+		for key in dic.items():
+			print(key)			
+			f.write(str(key) + '\n')
+		f.close()
+
+	#MA
+	if funcName == 'Parser_MAandVolume':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+
+					response = requests.get("http://www.cnyes.com/twstock/Technical/"+number+".htm")
+					index = response.text.find('技術指標</span>')
+					strTmp = response.text[index:]
+		
+					code = 1
+					tmp = ''
+					liDate = []
+					count = 0
+					iStructCount = 0
+					Total = 0					
+					
+					jsonTmp = '{'
+
+					indexStart = strTmp.find('<cite')
+					strTmp = strTmp[indexStart:]
+					indexEnd = strTmp.find('</cite>')
+					rowData = strTmp[0:indexEnd]
+
+					rowDataLen = len(rowData)
+					tmp = ''
+					while rowDataLen > 0:
+						if rowData[rowDataLen-1] == '>':
+							rowDataTmp = rowData[rowDataLen:]
+							indexLeftBrackets = rowDataTmp.find('<')
+
+							if rowDataTmp.strip() != '':
+								tmp = rowDataTmp.strip().replace(',', '')
+								break
+						rowDataLen = rowDataLen-1
+
+					currentDate = datetime.today()
+					data = tmp
+					liDate.append(data)
+					jsonTmp = jsonTmp + '"Date":"' + data + '", '
+					debugStatus = 'Date:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+
+					indexStart = strTmp.find('<td')
+					strTmp = strTmp[indexStart:]
+					currentDate = datetime.today()
+					data = obj.getData(strTmp)
+					liDate.append(data)
+					jsonTmp = jsonTmp + '"Close":"' + data + '", '
+					debugStatus = 'Close:' + str(data)
+						
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA3":"' + data + '", '
+					debugStatus = 'MA3:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA5":"' + data + '", '
+					debugStatus = 'MA5:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA10":"' + data + '", '
+					debugStatus = 'MA10:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA20":"' + data + '", '
+					debugStatus = 'MA20:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA60":"' + data + '", '
+					debugStatus = 'MA60:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA120":"' + data + '", '
+					debugStatus = 'MA120:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"MA240":"' + data + '", '
+					debugStatus = 'MA240:' + str(data)
+
+					while code <20:
+						indexEnd = strTmp.find('</td>')
+						strTmp = strTmp[indexEnd+5:]
+						code = code + 1
+					
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume":"' + data + '", '
+					debugStatus = 'Volume:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume3":"' + data + '", '
+					debugStatus = 'Volume3:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume5":"' + data + '", '
+					debugStatus = 'Volume5:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume10":"' + data + '", '
+					debugStatus = 'Volume10:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume20":"' + data + '", '
+					debugStatus = 'Volume20:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume60":"' + data + '", '
+					debugStatus = 'Volume60:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume120":"' + data + '", '
+					debugStatus = 'Volume120:' + str(data)
+
+					indexEnd = strTmp.find('</td>')
+					strTmp = strTmp[indexEnd+5:]
+					data = obj.getData(strTmp)
+					jsonTmp = jsonTmp + '"Volume240":"' + data + '", '
+					debugStatus = 'Volume240:' + str(data)
+
+					jsonTmp = jsonTmp + '}'
+					jsonOutput = jsonOutput + jsonTmp
+										
+						
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'MAandVolume.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					if len(liDate) > 0:
+						log = log + 'StartDate:' + liDate[0] + ',EndDate:' + liDate[len(liDate)-1] + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'MAandVolume_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'MAandVolume_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)	
+
 	#股票清單
 	if funcName == 'Parser_StockList':
 		appDataPath = os.getenv('APPDATA')
@@ -863,6 +1294,7 @@ if __name__ == '__main__':
 
 		obj = clsPy.Stock()
 		check = True
+		jsonStr = '[{'
 		tmp = ''
 		try:
 			response = requests.get("http://stock.wespai.com/p/16647")
@@ -880,11 +1312,20 @@ if __name__ == '__main__':
 
 				indexEnd = strTmp.find('</td>')
 				Data = strTmp[indexStart+4:indexEnd]
-
-				if count%3 == 0:
-					tmp = tmp + Data + '\n'
-
 				strTmp = strTmp[indexEnd+5:]
+
+				indexStart = strTmp.find('blank">')
+				indexEnd = strTmp.find('</a></td>')
+				DataName = strTmp[indexStart+7:indexEnd]
+				strTmp = strTmp[indexEnd+9:]
+
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+
+				
+				tmp = tmp + Data + '\n'
+				jsonStr = jsonStr + '"' + Data + '":' + '"' + DataName + '",'
+
 				count = count +1
 				
 		except:
@@ -892,6 +1333,13 @@ if __name__ == '__main__':
 			print('Error:')
 		
 		if check:
+			jsonStr = jsonStr[0:len(jsonStr)-1]
+			jsonStr = jsonStr + '}]'
+
+			f = open(appDataPath + '\\' + 'stockListMap.txt', 'w', encoding = 'UTF-8')
+			f.write(jsonStr)
+			f.close()
+
 			f = open(appDataPath + '\\' + 'stockList.csv', 'w', encoding = 'UTF-8')
 			f.write(tmp)
 			f.close()

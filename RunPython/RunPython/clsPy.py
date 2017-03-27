@@ -38,3 +38,22 @@ class Stock:
 			return tmp
 		except:
 			return 'E'
+
+	def getData2(self, strTmp):
+		try:
+			rowDataLen = len(strTmp)
+			tmp = ''
+			while rowDataLen > 0:
+				if strTmp[rowDataLen-1] == '>':
+					rowDataTmp = strTmp[rowDataLen:]
+					indexLeftBrackets = rowDataTmp.find('<')
+
+					if rowDataTmp.strip() != '':
+						tmp = rowDataTmp.strip().replace(',', '')
+						break
+				rowDataLen = rowDataLen-1
+
+			return tmp
+		except:
+			return 'E'
+

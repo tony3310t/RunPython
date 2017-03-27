@@ -1,14 +1,14 @@
 missing module named pyimod03_importers - imported by e:\runpython\runpython\env\lib\site-packages\PyInstaller\loader\rthooks\pyi_rth_pkgres.py
-missing module named 'pkg_resources.extern.pyparsing' - imported by pkg_resources._vendor.packaging.requirements, pkg_resources._vendor.packaging.markers
-missing module named __builtin__ - imported by pkg_resources._vendor.pyparsing
 missing module named StringIO - imported by requests.packages.urllib3.packages.six, requests.compat, pkg_resources._vendor.six
+missing module named __builtin__ - imported by pkg_resources._vendor.pyparsing
+missing module named 'pkg_resources.extern.pyparsing' - imported by pkg_resources._vendor.packaging.markers, pkg_resources._vendor.packaging.requirements
 missing module named __main__ - imported by pkg_resources
-missing module named multiprocessing.get_start_method - imported by multiprocessing, multiprocessing.spawn
 missing module named multiprocessing.set_start_method - imported by multiprocessing, multiprocessing.spawn
+missing module named multiprocessing.get_start_method - imported by multiprocessing, multiprocessing.spawn
 missing module named multiprocessing.TimeoutError - imported by multiprocessing, multiprocessing.pool
 missing module named multiprocessing.get_context - imported by multiprocessing, multiprocessing.pool, multiprocessing.managers, multiprocessing.sharedctypes
-missing module named multiprocessing.AuthenticationError - imported by multiprocessing, multiprocessing.connection
 missing module named multiprocessing.BufferTooShort - imported by multiprocessing, multiprocessing.connection
+missing module named multiprocessing.AuthenticationError - imported by multiprocessing, multiprocessing.connection
 missing module named _sysconfigdata - imported by sysconfig
 missing module named pkg_resources.extern.packaging - imported by pkg_resources.extern, pkg_resources
 missing module named 'pkg_resources.extern.six.moves' - imported by pkg_resources, pkg_resources._vendor.packaging.requirements
@@ -26,18 +26,18 @@ missing module named java - imported by platform, E:\MyGit\RunPython\RunPython\R
 missing module named 'java.lang' - imported by platform, E:\MyGit\RunPython\RunPython\RunPython.py, xml.sax._exceptions
 missing module named vms_lib - imported by platform, E:\MyGit\RunPython\RunPython\RunPython.py
 missing module named termios - imported by tty, getpass, E:\MyGit\RunPython\RunPython\RunPython.py
-missing module named urllib.quote - imported by urllib, requests.compat
-missing module named urllib.urlencode - imported by urllib, requests.compat, yahoo_finance.yql
 missing module named urllib.unquote_plus - imported by urllib, requests.compat
-missing module named urllib.getproxies - imported by urllib, requests.compat
 missing module named urllib.unquote - imported by urllib, requests.compat
 missing module named urllib.quote_plus - imported by urllib, requests.compat
+missing module named urllib.urlencode - imported by urllib, requests.compat, yahoo_finance.yql
+missing module named urllib.getproxies - imported by urllib, requests.compat
+missing module named urllib.quote - imported by urllib, requests.compat
 missing module named urllib.proxy_bypass - imported by urllib, requests.compat
 missing module named grp - imported by tarfile, shutil, E:\MyGit\RunPython\RunPython\RunPython.py
-missing module named org - imported by copy, E:\MyGit\RunPython\RunPython\RunPython.py
 missing module named pwd - imported by posixpath, tarfile, shutil, http.server, webbrowser, netrc, getpass, distutils.util, E:\MyGit\RunPython\RunPython\RunPython.py
 missing module named ce - imported by os, E:\MyGit\RunPython\RunPython\RunPython.py
 missing module named _dummy_threading - imported by dummy_threading, E:\MyGit\RunPython\RunPython\RunPython.py
+missing module named org - imported by copy, E:\MyGit\RunPython\RunPython\RunPython.py
 missing module named iconv_codec - imported by bs4.dammit
 missing module named chardet - imported by requests.packages, bs4.dammit
 missing module named cchardet - imported by bs4.dammit

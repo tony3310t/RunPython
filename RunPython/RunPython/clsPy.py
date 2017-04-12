@@ -3,6 +3,8 @@ from yahoo_finance import Share
 import datetime
 import ast
 import time
+import smtplib
+from email.mime.text import MIMEText
 
 class Stock:
 	def __init__(self):
@@ -56,4 +58,5 @@ class Stock:
 			return tmp
 		except:
 			return 'E'
+
 

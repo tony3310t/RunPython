@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import time
 import clsPy
+import urllib.request
 
 if __name__ == '__main__':
 	#funcName = sys.argv[1]
@@ -744,7 +745,7 @@ if __name__ == '__main__':
 		obj = clsPy.Stock()
 		#list = []
 		dayAdd = {}
-		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+		with open(appDataPath + '\\' + 'stockList.csv', newline='', encoding = 'utf8') as f:		
 			reader = csv.reader(f)
 			i = 0
 			for row in reader:
@@ -865,9 +866,10 @@ if __name__ == '__main__':
 			os.makedirs(appDataPath + '\StockData')
 
 		obj = clsPy.Stock()
+		
 		#list = []
 		dayAdd = {}
-		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+		with open(appDataPath + '\\' + 'stockList.csv', newline='', encoding = 'utf8') as f:		
 			reader = csv.reader(f)
 			i = 0
 			dic = {}
@@ -1297,37 +1299,88 @@ if __name__ == '__main__':
 		jsonStr = '[{'
 		tmp = ''
 		try:
-			response = requests.get("http://stock.wespai.com/p/16647")
-			index = response.text.find('<th>股價</th>')
+			response = requests.get("http://isin.twse.com.tw/isin/C_public.jsp?strMode=2")
+			index = response.text.find('<B> 股票 <B>')
 			strTmp = response.text[index:]
 		
 			code = 1
 			count = 0
 				
 			while code == 1:
-				indexStart = strTmp.find('<td>')
+				#indexStart = strTmp.find('<td>')
+				indexEnd = strTmp.find('</td>')
+				indexBreak = strTmp.find('<B> 上市認購(售)權證 <B>')
 
-				if indexStart == -1:
+				if indexEnd > indexBreak:
 					break
 
+				strTmp = strTmp[indexEnd+5:]
+				Data = obj.getData(strTmp)
+
+				Length = len(Data)
+				tmpIndex=0
+				while tmpIndex < Length:
+
+					if Data[tmpIndex].strip() == '':
+						Data = Data[:tmpIndex]
+						break
+
+					tmpIndex = tmpIndex + 1
+
 				indexEnd = strTmp.find('</td>')
-				Data = strTmp[indexStart+4:indexEnd]
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
 				strTmp = strTmp[indexEnd+5:]
 
-				indexStart = strTmp.find('blank">')
-				indexEnd = strTmp.find('</a></td>')
-				DataName = strTmp[indexStart+7:indexEnd]
-				strTmp = strTmp[indexEnd+9:]
-
-				indexEnd = strTmp.find('</td>')
-				strTmp = strTmp[indexEnd+5:]
-
-				
 				tmp = tmp + Data + '\n'
-				jsonStr = jsonStr + '"' + Data + '":' + '"' + DataName + '",'
 
-				count = count +1
-				
+			response = requests.get("http://isin.twse.com.tw/isin/C_public.jsp?strMode=4")
+			index = response.text.find('<B> 股票 <B>')
+			strTmp = response.text[index:]
+
+			while code == 1:
+				indexEnd = strTmp.find('</td>')
+				indexBreak = strTmp.find('<B> 臺灣存託憑證 <B>')
+
+				if indexEnd > indexBreak:
+					break
+
+				strTmp = strTmp[indexEnd+5:]
+				Data = obj.getData(strTmp)
+
+				Length = len(Data)
+				tmpIndex=0
+				while tmpIndex < Length:
+
+					if Data[tmpIndex].strip() == '':
+						Data = Data[:tmpIndex]
+						break
+
+					tmpIndex = tmpIndex + 1
+
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+				indexEnd = strTmp.find('</td>')
+				strTmp = strTmp[indexEnd+5:]
+
+				tmp = tmp + Data + '\n'
+
 		except:
 			check = False
 			print('Error:')

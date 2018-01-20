@@ -4,12 +4,14 @@ import os
 import requests
 import csv
 import operator
-from yahoo_finance import Share
+#from yahoo_finance import Share
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import time
 import clsPy
-import urllib.request
+from urllib.request import urlopen
+import ssl
+import ast
 
 if __name__ == '__main__':
 	#funcName = sys.argv[1]
@@ -23,16 +25,22 @@ if __name__ == '__main__':
 	#funcName = 'Parser_Foreign'
 	#funcName = 'Parser_Dealer'
 	#funcName = 'Parser_MAandVolume'
-	#funcName = 'Parser_RonChe'
+	funcName = 'Parser_RonChe'
+	#funcName = 'Parser_0050'
+	#funcName = 'Parser_FarZen_History'
 	#funcName = 'Parser_StockList'
 	#funcName = 'Parser_BasicInfo'
-	funcName = 'Parser_Interest'
+	#funcName = 'Parser_News'
+	#funcName = 'Parser_Interest'
 	#funcName = 'Parser_Report'
 	#funcName = 'Get_RonChe_Info'
 	#funcName = 'find_Surf'
 	#stockSymbol = '3576.TW'
 	#startDate = '2013-01-01'
 	#endDate = '2017-01-21'
+
+	if funcName == 'Parser_News':
+		print()
 
 	if funcName == 'Create_StockInfo':
 		stockSymbol = ''
@@ -884,224 +892,143 @@ if __name__ == '__main__':
 				#print(number)
 				debugStatus = ''
 				check = True
-				jsonOutput = '['
 				StartDate = ''
 				EndDate = ''
+				AllParaData = []
 				try:
 					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
 						os.makedirs(appDataPath + '\StockData\\' + str(number))
 					currentDate = datetime.today()
-					lastYearDay = currentDate - timedelta(days=365)
+					lastYearDay = currentDate - timedelta(days=1760)
 
 					lastYearMonth = str(lastYearDay.month)
 
-					if int(lastYearDay.month)-10 < 0:
-						lastYearMonth = "0" + str(lastYearDay.month)
-
-					lastYearDate = str(lastYearDay.day)
-
-					if int(lastYearDay.day)-10 < 0:
-						lastYearDate = "0" + str(lastYearDay.day)
-
-					currentMonth = str(currentDate.month)
-
-					if int(currentDate.month)-10 < 0:
-						currentMonth = "0" + str(currentDate.month)
-
-					currentDay = str(currentDate.day)
-
-					if int(currentDate.day)-10 < 0:
-						currentDay = "0" + str(currentDate.day)
-					
-					EndDate = str(lastYearDay.year)+'/'+lastYearMonth+'/'+lastYearDate
-					StartDate = str(currentDate.year)+'/'+currentMonth+'/'+currentDay
-					#response = requests.get("http://www.cnyes.com/twstock/ps_historyprice.aspx?code="+number+"&ctl00$ContentPlaceHolder1$startText="+EndDate+"&ctl00$ContentPlaceHolder1")
-					response = requests.get("http://www.cnyes.com/twstock/ps_historyprice.aspx?code="+number+"&ctl00$ContentPlaceHolder1$startText="+EndDate+"&ctl00$ContentPlaceHolder1$endText="+StartDate+"")
-					#response = requests.get("http://www.cnyes.com/twstock/ps_historyprice.aspx?code=0056&ctl00$ContentPlaceHolder1$startText=2012/01/01&ctl00$ContentPlaceHolder1$endText=2017/05/10")
-					index = response.text.find('歷史行情</span>')
-					strTmp = response.text[index:]
-
+					result = ''
+					#stock = Share(number + '.TW')
 					data = []
-
-					conti = 1
-					debugStatus = ''
-					while conti < 300:
-						conti = conti + 1
-						tmpDic = {}						
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['Date'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_Date:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['Open'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_Open:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['High'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_High:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['Low'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_Low:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['Close'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_Close:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['Volume'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_Volume:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = obj.getData2(rowData)
-						tmpDic['EPS'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'bi_EPS:' + str(rowData)
-
-						data.append(tmpDic)
-
-						indexStart = strTmp.find('<td')
-						if strTmp.find('最近訪問股</a>') < indexStart:
-							break;
-
+					url = "https://finance.yahoo.com/quote/" + number + '.TW' + "/history/"
+					rows = BeautifulSoup(urlopen(url).read()).findAll('table')[0].tbody.findAll('tr')
+										
+					for each_row in rows:
+						divs = each_row.findAll('td')
+						if divs[1].span.text  != 'Dividend': #Ignore this row in the table
+							#I'm only interested in 'Open' price; For other values, play with divs[1 - 5]
+							data.append({'Date': divs[0].span.text
+										,'Open': float(divs[1].span.text.replace(',',''))
+										,'High': float(divs[2].span.text.replace(',',''))
+										,'Low': float(divs[3].span.text.replace(',',''))
+										,'Close': float(divs[4].span.text.replace(',',''))
+										,'Volume': float(divs[6].span.text.replace(',',''))
+										})
+												
 					i=0
 					while i < len(data):
-						jsonTmp = '{'
-						jsonTmp = jsonTmp + '"Date":"' + data[i].get("Date") + '", '
-						jsonTmp = jsonTmp + '"Open":"' + data[i].get("Open") + '", '
-						jsonTmp = jsonTmp + '"Close":"' + data[i].get("Close") + '", '
-						jsonTmp = jsonTmp + '"High":"' + data[i].get("High") + '", '
-						jsonTmp = jsonTmp + '"Low":"' + data[i].get("Low") + '", '
-						jsonTmp = jsonTmp + '"EPS":"' + data[i].get("EPS") + '", '
-						jsonTmp = jsonTmp + '"Volume":"' + data[i].get("Volume") + '", '
+						UpDown = '-100'
+						if i < len(data) -1:
+							UpDown = str( round((round((  ( float(data[i].get("Close")) - float(data[i+1].get("Close")))/float(data[i+1].get("Close"))), 3)) * 100,3) )
 
-						if i != (len(data)-1):
-							jsonTmp = jsonTmp + '"UpDown":"' + str(round(((float(data[i].get("Close")) - float(data[i+1].get("Close")))/float(data[i].get("Close"))), 3)) + '", '
-						
-						debugStatus = 'Basic:'
-						count = i
-						volume5 = 0
-						MA5 = 0
-						MA20 = 0
-						MA60 = 0
-						SD20 = 0
-						debugStatus = 'BeforeCal:'
-						if count < len(data)-61:
-							#5volume
-							count = i
-							MACount=0
-							volumeCount=0
-							while count < i+5:
-								MACount = MACount + float(data[count].get("Close"))
-								volumeCount = volumeCount + int(data[count].get("Volume"))
+						tmpData5 = obj.getMAVolumeSD(i, 5, data)
+						tmpData20 = obj.getMAVolumeSD(i, 20, data)
+						tmpData30 = obj.getMAVolumeSD(i, 30, data)
+						tmpData40 = obj.getMAVolumeSD(i, 40, data)
+						tmpData50 = obj.getMAVolumeSD(i, 50, data)
+						tmpData60 = obj.getMAVolumeSD(i, 60, data)
 
-								if count == i+4:
-									MA5 = float(MACount/5)
-									volume5 = float(volumeCount/5)
-								count = count+1
-							debugStatus = 'Volume5:'
-							#20MA
-							count = i
-							MACount=0
-							while count < i+20:
-								MACount = MACount + float(data[count].get("Close"))
-								
-								if count == i+19:
-									MA20 = float(MACount/20)
-									
-								count = count+1
-							debugStatus = 'MA20:'
-							#20SD
-							count = i
-							SDCount=0
-							while count < i+20:
-								Sub = MA20 - float(data[count].get("Close"))
-								SDCount = SDCount + (Sub*Sub)
-								
-								if count == i+19:
-									SD20 = float(round((((SDCount/20)**0.5)), 3))
-									if i==0:
-										dic[number] = SD20										
-									
-								count = count+1
-							debugStatus = 'SD20:'
-							#60MA
-							
-							count = i
-							MACount=0
-							while count < i+60:
-								MACount = MACount + float(data[count].get("Close"))
-								
-								if count == i+59:
-									MA60 = float(MACount/60)
-									
-								count = count+1
-							debugStatus = 'MA60:'
-							
-								
-						jsonTmp = jsonTmp + '"Volume5":"' + str(round(volume5,3)) + '", '
-						jsonTmp = jsonTmp + '"MA5":"' + str(round(MA5,3)) + '", '
-						jsonTmp = jsonTmp + '"MA20":"' + str(round(MA20,3)) + '", '
-						jsonTmp = jsonTmp + '"MA60":"' + str(round(MA60,3)) + '", '
-						jsonTmp = jsonTmp + '"SD20":"' + str(round(SD20,3)) + '"}'
+						tmpDate = datetime.strptime(data[i].get("Date"), '%b %d, %Y')
+						tmpDate = tmpDate.strftime('%Y/%m/%d')
 
-						if i != (len(data)-1):
-							jsonTmp = jsonTmp + ','
-							
-						jsonOutput = jsonOutput + jsonTmp
+						if i == 0:
+							StartDate = tmpDate
+
+						AllParaData.append({'Date': str(tmpDate)
+											,'Open': data[i].get("Open")
+											,'High': data[i].get("High")
+											,'Low': data[i].get("Low")
+											,'Close': data[i].get("Close")
+											,'Volume': data[i].get("Volume")
+											,'UpDown': UpDown
+											,'MA5':tmpData5.get("MA")
+											,'Volume5':tmpData5.get("Volume")
+											,'SD5':tmpData5.get("SD")
+											,'MA20':tmpData20.get("MA")
+											,'Volume20':tmpData20.get("Volume")
+											,'SD20':tmpData20.get("SD")
+											,'MA30':tmpData30.get("MA")
+											,'Volume30':tmpData30.get("Volume")
+											,'SD30':tmpData30.get("SD")
+											,'MA40':tmpData40.get("MA")
+											,'Volume40':tmpData40.get("Volume")
+											,'SD40':tmpData40.get("SD")
+											,'MA50':tmpData50.get("MA")
+											,'Volume50':tmpData50.get("Volume")
+											,'SD50':tmpData50.get("SD")
+											,'MA60':tmpData60.get("MA")
+											,'Volume60':tmpData60.get("Volume")
+											,'SD60':tmpData60.get("SD")
+											})
 						i = i+1
+						
+					oldData = []
+					oldDataToStr = ''
+					oldFilePath = appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_All.txt'
+					if os.path.exists(oldFilePath) == True:
+						f = open(oldFilePath,'r')
+						oldDataToStr = f.read()
+						f.close()
+
+						oldDataToStr = oldDataToStr.replace('[','')
+						oldDataToStr = oldDataToStr.replace(']','')
+
+						i = 0
+						while i==0:
+							indexStart = oldDataToStr.find('{')
+							if indexStart < 0:
+								break
+							indexEnd = oldDataToStr.find('}')
+							tmpData = oldDataToStr[indexStart:(indexEnd+1)]
+							tmpDict = ast.literal_eval(tmpData)
+							oldData.append(tmpDict)
+							oldDataToStr = oldDataToStr[indexEnd+1:]
+
+							
+						if len(oldData) > 0:
+							oldDataLatestDay = oldData[0].get('Date')
+							stopIndex = -1
+
+							for index in range(len(AllParaData)):
+								if AllParaData[index].get('Date') == oldDataLatestDay:
+									stopIndex = index
+									break
+								
+							if stopIndex != -1:								
+								oldData = AllParaData[0:stopIndex] + oldData
+								AllParaData = oldData
+									
 											
 				except:
 					check = False
 					print('Error:' + str(number) + '_' + debugStatus)
 				
 				if check:
-					jsonOutput = jsonOutput + ']'
+					
+					try:
+						f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_All.txt', 'w', encoding = 'UTF-8')
+						f.write(str(AllParaData))
+						f.close()
 
-					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_5.txt', 'w', encoding = 'UTF-8')
-					f.write(jsonOutput)
-					f.close()
+						log = ''
 
-					log = ''
+						log = log + "{'StartDate':'" + StartDate + "','EndDate':'" + EndDate + "', 'Error':'NA'}"
 
-					log = log + 'StartDate:' + StartDate + ',EndDate:' + EndDate + ', Error:NA'
-
-					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_5_log.txt', 'w', encoding = 'UTF-8')
-					f.write(log)
-					f.close()
-					print(number)
+						f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'BasicInfo_All_log.txt', 'w', encoding = 'UTF-8')
+						f.write(log)
+						f.close()
+						print(number)
+					except:
+						print(number + '_Write_fail')
 				else:
 					f = open(appDataPath + '\StockData\\' + str(number) + 'BasicInfo_5_log.txt', 'w', encoding = 'UTF-8')
-					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.write("{'Error':'" + str(number) + "_" + debugStatus + "'}")
 					f.close()
 		end = time.time()
 		elapsed = end - start
@@ -1293,7 +1220,7 @@ if __name__ == '__main__':
 						os.makedirs(appDataPath + '\StockData\\' + str(number))
 					
 					response = requests.get("http://www.cnyes.com/twstock/Etfingredient/0050.htm")
-					index = response.text.find('停止過戶日</th>')
+					index = response.text.find('持股比例%</th>')
 					strTmp = response.text[index:]
 
 					data = []
@@ -1304,86 +1231,107 @@ if __name__ == '__main__':
 						conti = conti + 1
 						tmpDic = {}						
 
-						indexEnd = strTmp.find('</td>')
+						indexEnd = strTmp.find('</a>')
 						rowData = strTmp[0:indexEnd]
 						rowData = obj.getData2(rowData)
-						rowData = rowData[0:4]
-						tmpDic['Year'] = rowData
+						tmpDic['Name'] = rowData
 						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'interest_Year:' + str(rowData)
+						debugStatus = 'Name:' + str(rowData)
 
 						indexEnd = strTmp.find('</td>')
 						rowData = strTmp[0:indexEnd]
 						rowData = obj.getData2(rowData)
-						tmpDic['Cash'] = rowData
+						tmpDic['Rate'] = rowData
 						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'interest_Cash:' + str(rowData)
-
-						indexEnd = strTmp.find('</td>')						
-						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'Rate:' + str(rowData)
 						
-						indexEnd = strTmp.find('</td>')
-						rowData = strTmp[0:indexEnd]
-						rowData = str(float(obj.getData2(rowData))/100)
-						tmpDic['Stock'] = rowData
-						strTmp = strTmp[indexEnd+5:]
-						debugStatus = 'interest_Stock:' + str(rowData)						
-
-						indexEnd = strTmp.find('</td>')						
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')						
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')						
-						strTmp = strTmp[indexEnd+5:]
-
-						indexEnd = strTmp.find('</td>')						
-						strTmp = strTmp[indexEnd+5:]
-
 						data.append(tmpDic)
 
-						indexStart = strTmp.find('<td')
-						if strTmp.find('最近訪問股</a>') < indexStart:
+						indexStart = strTmp.find('</a>')
+						if strTmp.find('持股比例%</th>') < indexStart:
+							break;
+
+					while conti < 300:
+						conti = conti + 1
+						tmpDic = {}						
+
+						indexEnd = strTmp.find('</a>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Name'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'Name:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Rate'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'Rate:' + str(rowData)
+						
+						data.append(tmpDic)
+
+						indexStart = strTmp.find('</a>')
+						if strTmp.find('持股比例%</th>') < indexStart:
+							break;
+
+					while conti < 300:
+						conti = conti + 1
+						tmpDic = {}						
+
+						indexEnd = strTmp.find('</a>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Name'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'Name:' + str(rowData)
+
+						indexEnd = strTmp.find('</td>')
+						rowData = strTmp[0:indexEnd]
+						rowData = obj.getData2(rowData)
+						tmpDic['Rate'] = rowData
+						strTmp = strTmp[indexEnd+5:]
+						debugStatus = 'Rate:' + str(rowData)
+						
+						data.append(tmpDic)
+
+						indexStart = strTmp.find('</td>')
+						if strTmp.find('最近訪問股') < indexStart:
 							break;
 
 					i=0
 					while i < len(data):
 						jsonTmp = '{'
-						jsonTmp = jsonTmp + '"Year":"' + data[i].get("Year") + '", '
-						jsonTmp = jsonTmp + '"Cash":"' + data[i].get("Cash") + '", '
-						jsonTmp = jsonTmp + '"Stock":"' + data[i].get("Stock") + '", '
-						jsonTmp = jsonTmp + '"Total":"' + str(float(data[i].get("Cash")) + float(data[i].get("Stock"))) + '"}'
+						jsonTmp = jsonTmp + '"Name":"' + data[i].get("Name") + '", '
+						jsonTmp = jsonTmp + '"Rate":"' + data[i].get("Rate") + '"} '
 						
 						if i != (len(data)-1):
 							jsonTmp = jsonTmp + ','
 							
 						jsonOutput = jsonOutput + jsonTmp
 						i = i+1
-											
+														
 				except:
 					check = False
 					print('Error:' + str(number) + '_' + debugStatus)
-				
+					
 				if check:
 					jsonOutput = jsonOutput + ']'
 
-					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Interest.txt', 'w', encoding = 'UTF-8')
+					f = open(appDataPath + '\\Taiwan50.txt', 'w', encoding = 'UTF-8')
 					f.write(jsonOutput)
 					f.close()
 
 					log = ''
 
 					log = log + ', Error:NA'
-
-					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'Interest_log.txt', 'w', encoding = 'UTF-8')
-					f.write(log)
-					f.close()
-					print(number)
+								
+					break
 				else:
 					f = open(appDataPath + '\StockData\\' + str(number) + 'Interest_log.txt', 'w', encoding = 'UTF-8')
 					f.write('Error:' + str(number) + '_' + debugStatus)
 					f.close()
+					break
 		end = time.time()
 		elapsed = end - start
 		print(elapsed)
@@ -1741,6 +1689,7 @@ if __name__ == '__main__':
 
 					currentDate = datetime.today()
 					endDate = currentDate - timedelta(days=90)
+					#print(requests.get("http://jsjustweb.jihsun.com.tw/z/zc/zcn/zcn.djhtm?a="+number+"&d="+str(currentDate.year) + '-' +str(currentDate.month) + '-' +str(currentDate.day) +"&c="+str(endDate.year) + '-' +str(endDate.month) + '-' +str(endDate.day)))
 					response = requests.get("http://jsjustweb.jihsun.com.tw/z/zc/zcn/zcn.djhtm?a="+number+"&d="+str(currentDate.year) + '-' +str(currentDate.month) + '-' +str(currentDate.day) +"&c="+str(endDate.year) + '-' +str(endDate.month) + '-' +str(endDate.day))
 					index = response.text.find('nowrap>相抵</TD>')
 					strTmp = response.text[index:]
@@ -2048,6 +1997,177 @@ if __name__ == '__main__':
 		end = time.time()
 		elapsed = end - start
 		print(elapsed)	
+
+	#外資投信自營商歷史買賣
+	if funcName == 'Parser_FarZen_History':
+		start = time.time()
+		appDataPath = os.getenv('APPDATA')
+		if os.path.exists(appDataPath + '\StockData') == False:
+			os.makedirs(appDataPath + '\StockData')
+
+		obj = clsPy.Stock()
+		#list = []
+		dayAdd = {}
+		with open(appDataPath + '\\' + 'stockList.csv', newline='') as f:		
+			reader = csv.reader(f)
+			i = 0
+			for row in reader:
+				if row == []:
+					continue
+				i = i + 1
+				number = str(row[0])
+				#print(number)
+				debugStatus = ''
+				check = True
+				jsonOutput = '['
+				try:
+					if os.path.exists(appDataPath + '\StockData\\' + str(number)) == False:
+						os.makedirs(appDataPath + '\StockData\\' + str(number))
+
+					currentDate = datetime.today()
+					endDate = currentDate - timedelta(days=1460)
+					response = requests.get("http://jsjustweb.jihsun.com.tw/z/zc/zcl/zcl.djhtm?a="+number+"&d="+str(currentDate.year) + '-' +str(currentDate.month) + '-' +str(currentDate.day) +"&c="+str(endDate.year) + '-' +str(endDate.month) + '-' +str(endDate.day))
+					index = response.text.find('三大法人</td>')
+					strTmp = response.text[index:]
+		
+					code = 1
+					tmp = ''
+					liDate = []
+					count = 0
+					iStructCount = 0
+					Total = 0
+					FKeep = 0;
+					DKeep = 0;
+					SKeep = 0;
+					
+					while code == 1:
+						jsonTmp = '{'
+						index = strTmp.find('class="t3n0" nowrap>')
+
+						if index == -1:
+							break
+
+						strTmp = strTmp[index+20:]
+						indexTD = strTmp.find('</td>')
+						year = int(strTmp[0:3]) + 1911
+						data = str(year) + '/' + strTmp[4:9]
+						DebugDate = data
+						if DebugDate == '2013/09/10':
+							a = 0
+						liDate.append(data)
+						jsonTmp = jsonTmp + '"Date":"' + str(data) + '", '
+						debugStatus = 'Date:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"ForeignBuy":"' + str(data) + '", '
+						debugStatus = 'ForeignBuy:' + str(data)
+						
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"DealerBuy":"' + str(data) + '", '
+						debugStatus = 'DealerBuy:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"SelfBuy":"' + str(data) + '", '
+						debugStatus = 'SelfBuy:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						jsonTmp = jsonTmp + '"AllTotal":"' + str(data) + '", '
+						debugStatus = 'AllTotal:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						FKeep = data
+						jsonTmp = jsonTmp + '"ForeignKeep":"' + str(data) + '", '
+						debugStatus = 'ForeignKeep:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						DKeep = data
+						jsonTmp = jsonTmp + '"DealerKeep":"' + str(data) + '", '
+						debugStatus = 'DealerKeep:' + str(data)
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = int(strTmp[0:indexTD].replace(',', ''))
+						SKeep = data
+						jsonTmp = jsonTmp + '"SelfKeep":"' + str(data) + '", '
+						debugStatus = 'SelfKeep:' + str(data)
+						
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]						
+						
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = float(strTmp[0:indexTD].replace('%', ''))
+						jsonTmp = jsonTmp + '"ForeignKeepRate":"' + str(data) + '", '
+						debugStatus = 'ForeignKeepRate:' + str(data)
+
+						CompRelease = float(FKeep) / (data/100)
+						jsonTmp = jsonTmp + '"DealerKeepRate":"' + str(float("{0:.2f}".format(DKeep/CompRelease*100))) + '", '
+						jsonTmp = jsonTmp + '"SelfKeepRate":"' + str(float("{0:.2f}".format(SKeep/CompRelease*100))) + '"'
+
+						index = strTmp.find('nowrap>')
+						strTmp = strTmp[index+7:]
+
+						index = strTmp.find('nowrap>')
+						Tmp = strTmp[index+7:]
+						indexTD = strTmp.find('</td>')
+						data = Tmp[0:indexTD]
+						
+						if data.find('合計買賣超') >= 0:
+							jsonTmp = jsonTmp + '}'
+							jsonOutput = jsonOutput + jsonTmp
+							break
+						else:
+							jsonTmp = jsonTmp + '}'
+							jsonTmp = jsonTmp + ','
+							jsonOutput = jsonOutput + jsonTmp
+						
+				except:
+					check = False
+					print('Error:' + str(number) + '_' + debugStatus)
+				
+				if check:
+					jsonOutput = jsonOutput + ']'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'FarZenHis.txt', 'w', encoding = 'UTF-8')
+					f.write(jsonOutput)
+					f.close()
+
+					log = ''
+
+					if len(liDate) > 0:
+						log = log + 'StartDate:' + liDate[0] + ',EndDate:' + liDate[len(liDate)-1] + ', Error:NA'
+
+					f = open(appDataPath + '\StockData\\' + str(number) + '\\' + 'FarZenHis_log.txt', 'w', encoding = 'UTF-8')
+					f.write(log)
+					f.close()
+					print(number)
+				else:
+					f = open(appDataPath + '\StockData\\' + str(number) + 'FarZenHis_log.txt', 'w', encoding = 'UTF-8')
+					f.write('Error:' + str(number) + '_' + debugStatus)
+					f.close()
+		end = time.time()
+		elapsed = end - start
+		print(elapsed)
 		
 	def getKtype(self,stockInfoPath):
 		blackHammerPlus=[]
